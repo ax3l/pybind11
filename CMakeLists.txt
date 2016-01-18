@@ -1,11 +1,12 @@
 # CMakeLists.txt -- Build system for the pybind11 examples
 #
-# Copyright (c) 2015 Wenzel Jakob <wenzel@inf.ethz.ch>
+# Copyright (c) 2015-2016 Wenzel Jakob <wenzel@inf.ethz.ch>
+#               2016 Axel Huebl <a.huebl@hzdr.de>
 #
 # All rights reserved. Use of this source code is governed by a
 # BSD-style license that can be found in the LICENSE file.
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1.0)
 
 project(pybind11)
 
@@ -36,14 +37,17 @@ else()
 endif()
 find_package(PythonInterp ${PYTHONLIBS_VERSION_STRING} EXACT REQUIRED)
 
+# optional: find (and use) cuda for examples
+find_package(CUDA 7.5)
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   CHECK_CXX_COMPILER_FLAG("-std=c++14" HAS_CPP14_FLAG)
   CHECK_CXX_COMPILER_FLAG("-std=c++11" HAS_CPP11_FLAG)
 
-  if (HAS_CPP14_FLAG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-  elseif (HAS_CPP11_FLAG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  if (HAS_CPP11_FLAG)
+    set(CMAKE_CXX_STANDARD 14)
+  elseif (HAS_CPP14_FLAG)
+    set(CMAKE_CXX_STANDARD 11)
   else()
     message(FATAL_ERROR "Unsupported compiler -- pybind11 requires C++11 support!")
   endif()
@@ -56,7 +60,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
 
     # Check for Link Time Optimization support
     CHECK_CXX_COMPILER_FLAG("-flto" HAS_LTO_FLAG)
-    if (HAS_LTO_FLAG)
+    if (HAS_LTO_FLAG AND NOT CUDA_FOUND)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
     endif()
   endif()
@@ -112,8 +116,25 @@ set(PYBIND11_EXAMPLES
 set(PYBIND11_FIRSTEXAMPLE 1)
 list(LENGTH PYBIND11_EXAMPLES PYBIND11_LASTEXAMPLE)
 
+if(${CUDA_FOUND})
+  macro(add_library_wrapper)
+    cuda_add_library(${ARGV})
+  endmacro(add_library_wrapper)
+
+  set(CUDA_ARCH sm_20 CACHE STRING "Set GPU architecture")
+  add_definitions(-DPYBIND11_CUDA=1)
+  list(APPEND CUDA_NVCC_FLAGS -std=c++11)
+  list(APPEND CUDA_NVCC_FLAGS -arch=${CUDA_ARCH})
+  set(PYBIND11_EXAMPLES ${PYBIND11_EXAMPLES} example/example14.cu)
+else()
+  macro(add_library_wrapper)
+    add_library(${ARGV})
+  endmacro(add_library_wrapper)
+endif()
+
+
 # Create the binding library
-add_library(example SHARED
+add_library_wrapper(example SHARED
   ${PYBIND11_HEADERS}
   example/example.cpp
   ${PYBIND11_EXAMPLES}
