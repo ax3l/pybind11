@@ -382,7 +382,7 @@ public:
     template <typename... Ix> const T *data(Ix... ix) const { return &operator()(ssize_t(ix)...); }
 
     /// Returns the item size, i.e. sizeof(T)
-    constexpr static ssize_t itemsize() { return sizeof(T); }
+    static constexpr ssize_t itemsize() { return sizeof(T); }
 
     /// Returns the shape (i.e. size) of dimension `dim`
     ssize_t shape(ssize_t dim) const { return shape_[(size_t) dim]; }
@@ -1031,7 +1031,7 @@ struct npy_format_descriptor<T, enable_if_t<satisfies_any_of<T, std::is_arithmet
     : npy_format_descriptor_name<T> {
 private:
     // NB: the order here must match the one in common.h
-    constexpr static const int values[15] = {
+    static constexpr const int values[15] = {
         npy_api::NPY_BOOL_,
         npy_api::NPY_BYTE_,   npy_api::NPY_UBYTE_,   npy_api::NPY_INT16_,    npy_api::NPY_UINT16_,
         npy_api::NPY_INT32_,  npy_api::NPY_UINT32_,  npy_api::NPY_INT64_,    npy_api::NPY_UINT64_,
