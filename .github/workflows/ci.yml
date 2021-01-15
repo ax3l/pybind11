@@ -521,7 +521,10 @@ jobs:
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
         sudo service apport stop
-        cmake --build build --target check
+        cmake --build build --target check \
+        -DCMAKE_CXX_COMPILER_ID="Clang"                \
+        -DCMAKE_CXX_COMPILER_VERSION=12.0              \
+        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"
     - name: C++ tests
       shell: bash
       run: |
