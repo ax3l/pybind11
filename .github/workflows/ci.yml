@@ -511,30 +511,43 @@ jobs:
         -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"     \
         -DCMAKE_VERBOSE_MAKEFILE=ON                    \
         -DPYTHON_EXECUTABLE=$(python3 -c "import sys; print(sys.executable)")
+
     - name: Build
       shell: bash
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
         cmake --build build -j 2
+
     - name: Python tests
       shell: bash
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
         sudo service apport stop
-        cmake --build build --target check \
+        cmake --build build \
         -DCMAKE_CXX_COMPILER_ID="Clang"                \
         -DCMAKE_CXX_COMPILER_VERSION=12.0              \
-        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"
+        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"     \
+        --target check
+
     - name: C++ tests
       shell: bash
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
-        cmake --build build --target cpptest
+        cmake --build build \
+        -DCMAKE_CXX_COMPILER_ID="Clang"                \
+        -DCMAKE_CXX_COMPILER_VERSION=12.0              \
+        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"     \
+        --target cpptest
+
     - name: Interface test
       shell: bash
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
-        cmake --build build --target test_cmake_build
+        cmake --build build \
+        -DCMAKE_CXX_COMPILER_ID="Clang"                \
+        -DCMAKE_CXX_COMPILER_VERSION=12.0              \
+        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"     \
+        --target test_cmake_build
 
 
   # Testing on CentOS (manylinux uses a centos base, and this is an easy way
