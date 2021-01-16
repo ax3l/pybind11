@@ -597,31 +597,19 @@ jobs:
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
         sudo service apport stop
-        cmake --build build \
-        -DCMAKE_CXX_COMPILER_ID="Clang"                \
-        -DCMAKE_CXX_COMPILER_VERSION=12.0              \
-        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"     \
-        --target check
+        cmake --build build --target check
 
     - name: C++ tests
       shell: bash
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
-        cmake --build build \
-        -DCMAKE_CXX_COMPILER_ID="Clang"                \
-        -DCMAKE_CXX_COMPILER_VERSION=12.0              \
-        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"     \
-        --target cpptest
+        cmake --build build --target cpptest
 
     - name: Interface test
       shell: bash
       run: |
         set +e; source /opt/intel/oneapi/setvars.sh; set -e
-        cmake --build build \
-        -DCMAKE_CXX_COMPILER_ID="Clang"                \
-        -DCMAKE_CXX_COMPILER_VERSION=12.0              \
-        -DCMAKE_CXX_STANDARD_COMPUTED_DEFAULT="14"     \
-        --target test_cmake_build
+        cmake --build build --target test_cmake_build
 
 
   # Testing on CentOS (manylinux uses a centos base, and this is an easy way
